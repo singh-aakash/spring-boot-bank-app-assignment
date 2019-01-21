@@ -67,23 +67,23 @@ public class BankAppController {
 		return "FundTransfer";
 	}
 	
-	@RequestMapping("/statementFundTransfer")
+	@RequestMapping("/getStatements")
 	public ModelAndView getStatementFundTransfer(@RequestParam("offset") int offset, @RequestParam("size") int size) {
-		CurrentDataSet currentDataSet = restTemplate.getForObject("http://localhost:8989/transactions/statement", CurrentDataSet.class);
+		
+		CurrentDataSet currentDataSet = restTemplate.getForObject("http://localhost:7070/transactions/statement", CurrentDataSet.class);
 		int currentSize=size==0?5:size;
 		int currentOffset=offset==0?1:offset;
 		Link next=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset+currentSize,currentSize)).withRel("next");
 		Link previous=linkTo(methodOn(BankAppController.class).getStatementFundTransfer(currentOffset-currentOffset,currentSize)).withRel("previous");
 		List<Transaction> currentDataSetList = new ArrayList<Transaction>();
+		List<Transaction> transactions = currentDataSet.getTransactions();
 		for (int i = currentOffset - 1; i < currentSize + currentOffset - 1; i++) { 
-			List<Transaction> transactions = currentDataSet.getTransactions();
+			
 			Transaction transaction = transactions.get(i);
 			currentDataSetList.add(transaction);
 			}
 		CurrentDataSet dataSet = new CurrentDataSet(currentDataSetList, next, previous);
-		/*
-		 * currentDataSet.setNextLink(next); currentDataSet.setPreviousLink(previous);
-		 */
+
 		return new ModelAndView("DepositForm","currentDataSet",dataSet);
 	}
 }
